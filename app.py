@@ -1,49 +1,38 @@
-from flask import Flask, jsonify, request
-from datetime import datetime
-import random
+from flask import Flask, render_template, jsonify
 
 app = Flask(__name__)
 
-# دیتای نمونه برای کاربر و بلاک‌چین
-user_data = {"username": "John Doe", "balance": 0, "energy": 50}
-blocks = []
-blockchain_data = {"total_supply": 1000000000, "blocks_mined": 0}
+# متغیرهای شبیه‌سازی‌شده برای داده‌های بلاکچین
+blockchain_stats = {
+    "balance": 0,
+    "energy": 50,
+    "total_mined": 0,
+    "total_supply": 1000000000,
+    "blocks_mined": 0
+}
 
 @app.route("/")
 def home():
-    return app.send_static_file("index.html")
+    return render_template(
+        "index.html",
+        balance=blockchain_stats["balance"],
+        energy=blockchain_stats["energy"],
+        total_mined=blockchain_stats["total_mined"],
+        total_supply=blockchain_stats["total_supply"],
+        blocks_mined=blockchain_stats["blocks_mined"]
+    )
 
 @app.route("/mine", methods=["POST"])
 def mine():
-    global user_data, blocks, blockchain_data
-
-    if user_data["energy"] >= 10:  # شرط برای استخراج
-        user_data["balance"] += 1
-        user_data["energy"] -= 10
-
-        block = {
-            "number": random.randint(100000, 999999),
-            "reward": 1,
-            "time": datetime.now().strftime("%H:%M:%S"),
-            "miner": user_data["username"]
-        }
-        blocks.append(block)
-
-        blockchain_data["blocks_mined"] += 1
-        total_mined = (blockchain_data["blocks_mined"] / blockchain_data["total_supply"]) * 100
-
-        message = "Mining successful! +1 Balance"
+    # شبیه‌سازی استخراج
+    if blockchain_stats["energy"] > 0:
+        blockchain_stats["balance"] += 10  # پاداش استخراج
+        blockchain_stats["blocks_mined"] += 1
+        blockchain_stats["total_mined"] += 0.01  # درصد استخراج‌شده از کل عرضه
+        blockchain_stats["energy"] -= 5  # مصرف انرژی
+        return jsonify({"status": "Mining successful!"})
     else:
-        message = "Not enough energy to mine."
-
-    return jsonify({
-        "balance": user_data["balance"],
-        "energy": user_data["energy"],
-        "message": message,
-        "block": block if 'block' in locals() else None,
-        "total_mined": round(total_mined, 2),
-        "blocks_mined": blockchain_data["blocks_mined"]
-    })
+        return jsonify({"status": "Not enough energy!"})
 
 if __name__ == "__main__":
     app.run(debug=True)
