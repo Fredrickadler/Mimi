@@ -1,21 +1,67 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TinyHash</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyHash</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #32cd32;
+        }
+        #startMining {
+            padding: 10px 20px;
+            background-color: #32cd32;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        #startMining:hover {
+            background-color: #28a428;
+        }
+        p {
+            margin: 10px 0;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>TinyHash</h1>
-      <p>Welcome to the future of crypto mining</p>
+    <h1>TinyHash</h1>
+    <p>Welcome to the future of crypto mining</p>
+    <p id="username">Welcome, John Doe</p>
+    <p id="balance">Balance: 0</p>
+    <p id="energy">Energy: 50%</p>
+
+    <div style="margin-top: 20px;">
+        <button id="startMining">Start Mining</button>
+        <p id="miningStatus" style="color: lightgray; margin-top: 10px;"></p>
     </div>
-    <div id="dashboard"></div>
-  </div>
-  <script src="/static/scripts.js"></script>
+
+    <script>
+        document.getElementById("startMining").addEventListener("click", () => {
+            const status = document.getElementById("miningStatus");
+            status.textContent = "Mining started...";
+            
+            fetch('/mine', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    status.textContent = data.message;
+                    // Update balance and energy
+                    document.getElementById("balance").textContent = `Balance: ${data.balance}`;
+                    document.getElementById("energy").textContent = `Energy: ${data.energy}`;
+                })
+                .catch(err => {
+                    status.textContent = "Mining failed!";
+                    console.error(err);
+                });
+        });
+    </script>
 </body>
 </html>
