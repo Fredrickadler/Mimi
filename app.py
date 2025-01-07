@@ -1,7 +1,11 @@
-
 from flask import Flask, jsonify, render_template, request
+import requests
 
 app = Flask(__name__)
+
+# Configurations
+BOT_TOKEN = "7992131826:AAESzqUPUYmXQMPi81rDZlekIRBiQRUuLJA"
+BASE_URL = "https://mimi-ijdu.onrender.com"
 
 # Mock database
 users = [
@@ -40,5 +44,16 @@ def update_user():
         return jsonify({"message": "User updated successfully"})
     return jsonify({"error": "User not found"}), 404
 
+@app.route("/api/send_message", methods=["POST"])
+def send_message():
+    data = request.json
+    chat_id = data.get("chat_id")
+    message = data.get("message")
+    if chat_id and message:
+        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+        response = requests.post(url, json={"chat_id": chat_id, "text": message})
+        return response.json()
+    return jsonify({"error": "Invalid request"}), 400
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0")
