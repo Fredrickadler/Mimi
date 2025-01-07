@@ -6,105 +6,72 @@
     <title>TinyHash</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             background-color: #121212;
             color: #ffffff;
-            text-align: center;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-        }
-        header {
-            padding: 20px;
-            background-color: #1c1c1c;
-        }
-        h1 {
-            color: #32cd32;
-            margin: 0;
-        }
-        #profile, #mining, #latest-blocks {
-            margin: 20px auto;
-            max-width: 600px;
-            padding: 20px;
-            border-radius: 10px;
-            background-color: #1c1c1c;
-            text-align: left;
-        }
-        .button {
-            padding: 10px 20px;
-            background-color: #32cd32;
-            border: none;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        .button:hover {
-            background-color: #28a428;
-        }
-        footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: #1c1c1c;
-            padding: 10px;
             display: flex;
-            justify-content: space-around;
-            border-top: 1px solid #333;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
-        footer a {
-            color: #ffffff;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        footer a:hover {
-            text-decoration: underline;
+        h1, h2, h3 {
+            color: #00ff00;
         }
         .block {
-            border-bottom: 1px solid #333;
-            padding: 10px 0;
+            background-color: #1e1e1e;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            width: 90%;
         }
-        .block:last-child {
-            border-bottom: none;
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #blocksContainer {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>#TinyHash</h1>
-        <p>Welcome to the future of crypto mining</p>
-    </header>
+    <h1>TinyHash</h1>
+    <h2>Welcome to the future of crypto mining</h2>
 
     <div id="profile">
-        <h2>My Profile</h2>
+        <h3>Welcome, <span id="username">John Doe</span></h3>
         <p>Balance: <span id="balance">0</span></p>
-        <p>Energy: <span id="energy">50</span></p>
+        <p>Energy: <span id="energy">50%</span></p>
     </div>
 
-    <div id="mining">
-        <h2>Mining</h2>
-        <p>Status: <span id="status">Waiting</span></p>
-        <button class="button" id="startMining">Start Mining</button>
+    <div id="blockchainStats">
+        <h3>Blockchain Stats</h3>
+        <p>Total Mined: <span id="totalMined">0%</span></p>
+        <p>Total Supply: 1000000000</p>
+        <p>Blocks Mined: <span id="blocksMined">0</span></p>
     </div>
 
-    <div id="latest-blocks">
-        <h2>Latest Blocks</h2>
-        <div id="blocks">
-            <!-- Blocks will be dynamically added here -->
-        </div>
+    <div id="mining-section">
+        <h3>Status: <span id="status">Waiting...</span></h3>
+        <button id="startMining">→ Start Mining ←</button>
     </div>
 
-    <footer>
-        <a href="#">Mining</a>
-        <a href="#">Upgrade</a>
-        <a href="#">Tasks</a>
-        <a href="#">Stats</a>
-        <a href="#">Wallet</a>
-    </footer>
+    <div id="blocksContainer">
+        <h3>Latest Blocks</h3>
+    </div>
 
     <script>
-        const blocksContainer = document.getElementById("blocks");
-
         document.getElementById("startMining").addEventListener("click", () => {
             const status = document.getElementById("status");
             status.textContent = "Mining started...";
@@ -115,15 +82,17 @@
                     status.textContent = data.message;
                     document.getElementById("balance").textContent = data.balance;
                     document.getElementById("energy").textContent = data.energy;
+                    document.getElementById("totalMined").textContent = data.total_mined + "%";
+                    document.getElementById("blocksMined").textContent = data.blocks_mined;
 
-                    // Add new block to the list
+                    // اضافه کردن بلوک جدید به لیست
                     const blockDiv = document.createElement("div");
                     blockDiv.className = "block";
                     blockDiv.innerHTML = `
                         <p>Block #${data.block.number} | Reward: ${data.block.reward}</p>
                         <p>Created at: ${data.block.time} by ${data.block.miner}</p>
                     `;
-                    blocksContainer.prepend(blockDiv);
+                    document.getElementById("blocksContainer").prepend(blockDiv);
                 })
                 .catch(err => {
                     status.textContent = "Mining failed!";
