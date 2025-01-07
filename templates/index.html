@@ -10,12 +10,26 @@
             background-color: #121212;
             color: #ffffff;
             text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        header {
             padding: 20px;
+            background-color: #1c1c1c;
         }
         h1 {
             color: #32cd32;
+            margin: 0;
         }
-        #startMining {
+        #profile, #mining, #latest-blocks {
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #1c1c1c;
+            text-align: left;
+        }
+        .button {
             padding: 10px 20px;
             background-color: #32cd32;
             border: none;
@@ -24,38 +38,92 @@
             cursor: pointer;
             border-radius: 5px;
         }
-        #startMining:hover {
+        .button:hover {
             background-color: #28a428;
         }
-        p {
-            margin: 10px 0;
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #1c1c1c;
+            padding: 10px;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid #333;
+        }
+        footer a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        .block {
+            border-bottom: 1px solid #333;
+            padding: 10px 0;
+        }
+        .block:last-child {
+            border-bottom: none;
         }
     </style>
 </head>
 <body>
-    <h1>TinyHash</h1>
-    <p>Welcome to the future of crypto mining</p>
-    <p id="username">Welcome, John Doe</p>
-    <p id="balance">Balance: 0</p>
-    <p id="energy">Energy: 50%</p>
+    <header>
+        <h1>#TinyHash</h1>
+        <p>Welcome to the future of crypto mining</p>
+    </header>
 
-    <div style="margin-top: 20px;">
-        <button id="startMining">Start Mining</button>
-        <p id="miningStatus" style="color: lightgray; margin-top: 10px;"></p>
+    <div id="profile">
+        <h2>My Profile</h2>
+        <p>Balance: <span id="balance">0</span></p>
+        <p>Energy: <span id="energy">50</span></p>
     </div>
 
+    <div id="mining">
+        <h2>Mining</h2>
+        <p>Status: <span id="status">Waiting</span></p>
+        <button class="button" id="startMining">Start Mining</button>
+    </div>
+
+    <div id="latest-blocks">
+        <h2>Latest Blocks</h2>
+        <div id="blocks">
+            <!-- Blocks will be dynamically added here -->
+        </div>
+    </div>
+
+    <footer>
+        <a href="#">Mining</a>
+        <a href="#">Upgrade</a>
+        <a href="#">Tasks</a>
+        <a href="#">Stats</a>
+        <a href="#">Wallet</a>
+    </footer>
+
     <script>
+        const blocksContainer = document.getElementById("blocks");
+
         document.getElementById("startMining").addEventListener("click", () => {
-            const status = document.getElementById("miningStatus");
+            const status = document.getElementById("status");
             status.textContent = "Mining started...";
-            
+
             fetch('/mine', { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
                     status.textContent = data.message;
-                    // Update balance and energy
-                    document.getElementById("balance").textContent = `Balance: ${data.balance}`;
-                    document.getElementById("energy").textContent = `Energy: ${data.energy}`;
+                    document.getElementById("balance").textContent = data.balance;
+                    document.getElementById("energy").textContent = data.energy;
+
+                    // Add new block to the list
+                    const blockDiv = document.createElement("div");
+                    blockDiv.className = "block";
+                    blockDiv.innerHTML = `
+                        <p>Block #${data.block.number} | Reward: ${data.block.reward}</p>
+                        <p>Created at: ${data.block.time} by ${data.block.miner}</p>
+                    `;
+                    blocksContainer.prepend(blockDiv);
                 })
                 .catch(err => {
                     status.textContent = "Mining failed!";
