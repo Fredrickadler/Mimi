@@ -1,104 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TinyHash</title>
-    <style>
-        body {
-            background-color: #121212;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-        h1, h2, h3 {
-            color: #00ff00;
-        }
-        .block {
-            background-color: #1e1e1e;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            width: 90%;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #blocksContainer {
-            max-height: 200px;
-            overflow-y: auto;
-            margin-top: 20px;
-        }
-    </style>
-</head>
-<body>
-    <h1>TinyHash</h1>
-    <h2>Welcome to the future of crypto mining</h2>
+from flask import Flask, render_template, jsonify
 
-    <div id="profile">
-        <h3>Welcome, <span id="username">John Doe</span></h3>
-        <p>Balance: <span id="balance">0</span></p>
-        <p>Energy: <span id="energy">50%</span></p>
-    </div>
+app = Flask(__name__)
 
-    <div id="blockchainStats">
-        <h3>Blockchain Stats</h3>
-        <p>Total Mined: <span id="totalMined">0%</span></p>
-        <p>Total Supply: 1000000000</p>
-        <p>Blocks Mined: <span id="blocksMined">0</span></p>
-    </div>
+# متغیرهای شبیه‌سازی‌شده برای داده‌های بلاکچین
+blockchain_stats = {
+    "balance": 0,
+    "energy": 50,
+    "total_mined": 0,
+    "total_supply": 1000000000,
+    "blocks_mined": 0
+}
 
-    <div id="mining-section">
-        <h3>Status: <span id="status">Waiting...</span></h3>
-        <button id="startMining">→ Start Mining ←</button>
-    </div>
+@app.route("/")
+def home():
+    return render_template(
+        "index.html",
+        balance=blockchain_stats["balance"],
+        energy=blockchain_stats["energy"],
+        total_mined=blockchain_stats["total_mined"],
+        total_supply=blockchain_stats["total_supply"],
+        blocks_mined=blockchain_stats["blocks_mined"]
+    )
 
-    <div id="blocksContainer">
-        <h3>Latest Blocks</h3>
-    </div>
+@app.route("/mine", methods=["POST"])
+def mine():
+    # شبیه‌سازی استخراج
+    if blockchain_stats["energy"] > 0:
+        blockchain_stats["balance"] += 10  # پاداش استخراج
+        blockchain_stats["blocks_mined"] += 1
+        blockchain_stats["total_mined"] += 0.01  # درصد استخراج‌شده از کل عرضه
+        blockchain_stats["energy"] -= 5  # مصرف انرژی
+        return jsonify({"status": "Mining successful!"})
+    else:
+        return jsonify({"status": "Not enough energy!"})
 
-    <script>
-        document.getElementById("startMining").addEventListener("click", () => {
-            const status = document.getElementById("status");
-            status.textContent = "Mining started...";
-
-            fetch('/mine', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    status.textContent = data.message;
-                    document.getElementById("balance").textContent = data.balance;
-                    document.getElementById("energy").textContent = data.energy;
-                    document.getElementById("totalMined").textContent = data.total_mined + "%";
-                    document.getElementById("blocksMined").textContent = data.blocks_mined;
-
-                    // اضافه کردن بلوک جدید به لیست
-                    const blockDiv = document.createElement("div");
-                    blockDiv.className = "block";
-                    blockDiv.innerHTML = `
-                        <p>Block #${data.block.number} | Reward: ${data.block.reward}</p>
-                        <p>Created at: ${data.block.time} by ${data.block.miner}</p>
-                    `;
-                    document.getElementById("blocksContainer").prepend(blockDiv);
-                })
-                .catch(err => {
-                    status.textContent = "Mining failed!";
-                    console.error(err);
-                });
-        });
-    </script>
-</body>
-</html>
+if __name__ == "__main__":
+    app.run(debug=True)
